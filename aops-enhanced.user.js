@@ -144,14 +144,31 @@ background: #111 !important;
 }`,
 }
 
+function returnAttachmentString(postAttachments) {
+  temp = "\n\n[size=75][i]Attachments:[/i][/size]\n";
+  if (attachmentText) {
+    if (postAttachments.length > 0) {
+      for (let i = 0; i < postAttachments.length; i++) {
+        if (postAttachments[i].mimetype.split("/")[0] == "image") {
+          temp = temp + "[url=" + postAttachments[i].href + "][img]" + postAttachments[i].href + "[/img][/url]\n";
+        } else {
+          temp = temp + "[url=" + postAttachments[i].href + "]" + postAttachments[i].name + "[/url]\n";
+        }
+      }
+      return temp;
+    }
+  }
+  return "";
+}
+
 let quote_schemes = {
   'AoPS': AoPS.Community ? AoPS.Community.Views.Post.prototype.onClickQuote : function () { alert("Quoting failed") }, // Uses dummy function as a fallback when community is undefined.
-  'Enhanced': function () { this.topic.appendToReply("[quote name=\"" + this.model.get("username") + "\" url=\"/community/p" + this.model.get("post_id") + "\"]\n" + this.model.get("post_canonical").trim() + "\n[/quote]\n\n") },
+  'Enhanced': function () { this.topic.appendToReply("[quote name=\"" + this.model.get("username") + "\" url=\"/community/p" + this.model.get("post_id") + "\"]\n" + this.model.get("post_canonical").trim() + returnAttachmentString(this.model.attributes.attachments) + "\n[/quote]\n\n") },
   'Link': function () { this.topic.appendToReply(`@[url=https://aops.com/community/p${this.model.get("post_id")}]${this.model.get("username")} (#${this.model.get("post_number")}):[/url]`); },
   'Hide': function () {
     this.topic.appendToReply(`[hide=Post #${this.model.get("post_number")} by ${this.model.get("username")}]
 [url=https://aops.com/community/user/${this.model.get("poster_id")}]${this.model.get('username')}[/url] [url=https://aops.com/community/p${this.model.get("post_id")}](view original)[/url]
-${this.model.get('post_canonical').trim()}
+${this.model.get('post_canonical').trim() + returnAttachmentString(this.model.attributes.attachments)}
 [/hide]
 
 `);
@@ -165,6 +182,7 @@ class EnhancedSettingsManager {
     post_links: true,
     feed_moderation: true,
     kill_top: false,
+    quote_attachments: false,
     quote_primary: 'Enhanced',
     quote_secondary: 'Enhanced',
     theme: 'None',
@@ -299,6 +317,12 @@ for (let setting of ['quote_primary', 'quote_secondary']) {
   })
 }
 
+var attachmentText = false;
+// If enabled, quotes also quote attachments
+{
+  enhanced_settings.add_hook("quote_attachments", (value) => {if (value) {attachmentText = true;} else {attachmentText = false;}});
+}
+
 // Feed moderator icon
 {
   const style = document.createElement('style');
@@ -337,6 +361,7 @@ function show_enhanced_configurator() {
     post_links: settings_ui.toggle('Post links'),
     feed_moderation: settings_ui.toggle('Feed moderate icon'),
     kill_top: settings_ui.toggle('Simplify UI'),
+    quote_attachments: settings_ui.toggle("Quote attachments"),
     quote_primary: settings_ui.select('Primary quote', Object.keys(quote_schemes).map(k => [k, k])),
     quote_secondary: settings_ui.select('Ctrl quote', Object.keys(quote_schemes).map(k => [k, k])),
     theme: settings_ui.select('Theme', Object.keys(themes).map(k => [k, k])),
