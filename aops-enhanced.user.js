@@ -190,6 +190,8 @@ class EnhancedSettingsManager {
     post_links: true,
     feed_moderation: true,
     kill_top: false,
+    post_links_secondary: 'Link',
+    post_links_primary: 'BBCode', //primary and secondary links are switched for some reason and i couldn't figure it out so their names are switched :/
     quote_primary: 'Enhanced',
     quote_secondary: 'Enhanced',
     theme: 'None',
