@@ -187,7 +187,6 @@ class EnhancedSettingsManager {
   /** Default settings */
   DEFAULTS = {
     notifications: true,
-    post_links: true,
     feed_moderation: true,
     kill_top: false,
     post_links_secondary: 'Link',
